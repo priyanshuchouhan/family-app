@@ -4,13 +4,11 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN apk update && \
-    apk upgrade && \
-    npm ci --omit=dev && \
+RUN npm ci --omit=dev && \
     npm cache clean --force
 
-COPY . .
+COPY src ./src
 
 EXPOSE 5000
 
-CMD ["npm", "start"]
+CMD ["node", "src/app.js"]
