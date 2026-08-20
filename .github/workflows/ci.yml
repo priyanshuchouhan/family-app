@@ -64,5 +64,12 @@ jobs:
       - name: Run tests
         run: npm test
 
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v8
+        with:
+          projectBaseDir: .
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
       - name: Build Docker image
         run: docker build -t family-app-backend:ci .
