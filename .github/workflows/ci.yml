@@ -30,7 +30,7 @@ jobs:
     defaults:
       run:
         working-directory: backend
-0
+
     env:
       DB_USER: familyuser
       DB_PASSWORD: redhat
@@ -51,14 +51,15 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
-      - name: Restore test database
+
+      - name: Initialize test database
         run: |
           PGPASSWORD=redhat psql \
             -h localhost \
             -p 5432 \
             -U familyuser \
             -d familydb \
-            -f familydb_backup.sql
+            -f ../database/schema.sql
 
       - name: Run tests
         run: npm test
