@@ -12,9 +12,31 @@ jobs:
   backend-ci:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: familyuser
+          POSTGRES_PASSWORD: redhat
+          POSTGRES_DB: familydb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U familyuser -d familydb"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
     defaults:
       run:
         working-directory: backend
+
+    env:
+      DB_USER: familyuser
+      DB_PASSWORD: redhat
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_NAME: familydb
 
     steps:
       - name: Checkout code
