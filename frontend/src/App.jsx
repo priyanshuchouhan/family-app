@@ -901,9 +901,57 @@ const searchResults = searchTerm.trim()
               ×
             </button>
 
-            <h2>
-              {selectedMember.name}
-            </h2>
+<div className="family-relations">
+  <h3>Family Relations</h3>
+
+  {relationships
+    .filter(
+      (relationship) =>
+        relationship.member_id ===
+          selectedMember.id ||
+        relationship.related_member_id ===
+          selectedMember.id
+    )
+    .map((relationship) => {
+      const isMember =
+        relationship.member_id ===
+        selectedMember.id;
+
+      const relatedId = isMember
+        ? relationship.related_member_id
+        : relationship.member_id;
+
+      const relatedMember =
+        members.find(
+          (member) =>
+            member.id === relatedId
+        );
+
+      if (!relatedMember) {
+        return null;
+      }
+
+      return (
+        <div
+          key={relationship.id}
+          className="relation-item"
+          onClick={() =>
+            setSelectedMember(
+              relatedMember
+            )
+          }
+        >
+          <span>
+            {relationship.relationship_type}
+          </span>
+
+          <strong>
+            {relatedMember.name}
+          </strong>
+        </div>
+      );
+    })}
+</div>
 
             <div className="member-info">
 
