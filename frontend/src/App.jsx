@@ -4,6 +4,8 @@ import ReactFlow, {
   Background,
   Controls,
   MiniMap,
+  ReactFlowProvider,
+  useReactFlow,
 } from "reactflow";
 
 import "reactflow/dist/style.css";
@@ -14,10 +16,44 @@ const API_URL = "http://localhost:5000";
 const NODE_WIDTH = 180;
 const NODE_HEIGHT = 80;
 
+
+// Family Tree Flow Component
+function FamilyTreeFlow({
+  nodes,
+  edges,
+  selectedMember,
+  onSelectMember,
+}) {
+
+  const handleNodeClick = (_, node) => {
+    const member = nodes.find(
+      (n) => n.id === node.id
+    )?.member;
+
+    if (member) {
+      onSelectMember(member);
+    }
+  };
+
+  return (
+    <ReactFlow
+      nodes={nodes}
+      edges={edges}
+      fitView
+      onNodeClick={handleNodeClick}
+    >
+      <Background />
+      <Controls />
+      <MiniMap />
+    </ReactFlow>
+  );
+}
+
 function App() {
   const [members, setMembers] = useState([]);
   const [relationships, setRelationships] = useState([]);
   const [selectedMember, setSelectedMember] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -504,6 +540,13 @@ function App() {
    * CREATE NODES
    * -----------------------------------------
    */
+const searchResults = searchTerm.trim()
+  ? members.filter((member) =>
+      member.name
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase())
+    )
+  : [];
 
   const nodes = [];
 
@@ -527,15 +570,37 @@ function App() {
                   (NODE_WIDTH + 40),
               y: position.y,
             },
+            member: member,
+
+            style: {
+              width: NODE_WIDTH,
+              height: NODE_HEIGHT,
+
+              border:
+                selectedMember &&
+                selectedMember.id === member.id
+                  ? "3px solid #f59e0b"
+                  : "none",
+
+              boxShadow:
+                selectedMember &&
+                selectedMember.id === member.id
+                  ? "0 0 20px rgba(245, 158, 11, 0.6)"
+                  : "none",
+            },
 
             data: {
               label: (
-                <div
-                  className="family-node"
-                  onClick={() =>
-                    setSelectedMember(member)
-                  }
-                >
+              <div
+              className={`family-node ${
+                selectedMember?.id === member.id
+                  ? "selected-family-node"
+                  : ""
+              }`}
+              onClick={() =>
+                setSelectedMember(member)
+              }
+            >
                   <strong>
                     {member.name}
                   </strong>
@@ -568,7 +633,11 @@ function App() {
         data: {
           label: (
             <div
-              className="family-node"
+              className={`family-node ${
+                selectedMember?.id === member.id
+                  ? "selected-family-node"
+                  : ""
+              }`}
               onClick={() =>
                 setSelectedMember(member)
               }
@@ -758,36 +827,65 @@ function App() {
   return (
     <div className="app">
 
-      <header className="header">
-        <div>
-          <h1>Family Tree</h1>
+<header className="header">
+  <div>
+    <h1>Family Tree</h1>
 
-          <p>
-            {members.length} family members
-          </p>
+    <p>
+      {members.length} family members
+    </p>
+  </div>
+
+<div className="search-box">
+  <input
+    type="text"
+    placeholder="Search family member..."
+    value={searchTerm}
+    onChange={(e) =>
+      setSearchTerm(e.target.value)
+    }
+  />
+
+  {searchResults.length > 0 && (
+    <div className="search-results">
+      {searchResults.slice(0, 8).map((member) => (
+        <div
+          key={member.id}
+          className="search-result"
+          onClick={() => {
+            setSelectedMember(member);
+            setSearchTerm("");
+          }}
+        >
+          <strong>{member.name}</strong>
+          <span>{member.location}</span>
         </div>
-      </header>
+      ))}
+    </div>
+  )}
+
+  {searchTerm && searchResults.length === 0 && (
+    <div className="search-results">
+      <div className="search-result">
+        No member found
+      </div>
+    </div>
+  )}
+</div>
+</header>
 
       <main className="content">
 
         <section className="tree-container">
 
-          <ReactFlow
+        <ReactFlowProvider>
+          <FamilyTreeFlow
             nodes={nodes}
             edges={edges}
-            fitView
-            fitViewOptions={{
-              padding: 0.2,
-            }}
-          >
-
-            <Background />
-
-            <Controls />
-
-            <MiniMap />
-
-          </ReactFlow>
+            selectedMember={selectedMember}
+            onSelectMember={setSelectedMember}
+          />
+        </ReactFlowProvider>
 
         </section>
 
