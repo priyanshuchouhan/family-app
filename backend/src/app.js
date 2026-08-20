@@ -102,6 +102,135 @@ app.get("/api/relationships", async (req, res) => {
     }
 });
 
+app.post("/api/members", async (req, res) => {
+    try {
+        const {
+            name,
+            phone,
+            email,
+            location,
+            gender,
+            date_of_birth,
+            photo_url
+        } = req.body;
+
+        if (!name || !name.trim()) {
+            return res.status(400).json({
+                error: "Name is required"
+            });
+        }
+
+        const result = await pool.query(
+            `
+            INSERT INTO family_members
+                (name, phone, email, location, gender, date_of_birth, photo_url)
+            VALUES
+                ($1, $2, $3, $4, $5, $6, $7)
+            RETURNING
+                id,
+                name,
+                phone,
+                email,
+                location,
+                gender,
+                date_of_birth,
+                photo_url
+            `,
+            [
+                name.trim(),
+                phone || null,
+                email || null,
+                location || null,
+                gender || null,
+                date_of_birth || null,
+                photo_url || null
+            ]
+        );
+
+        res.status(201).json({
+            message: "Family member added successfully",
+            member: result.rows[0]
+        });
+
+    } catch (error) {
+        console.error(error);
+
+        res.status(500).json({
+            error: "Failed to add family member"
+        });
+    }
+});
+
+app.post("/api/relationships", async (req, res) => {
+    try {
+        const {
+            member_id,
+            related_member_id,
+            relationship_type
+        } = req.body;
+
+        if (
+            !member_id ||
+            !related_member_id ||
+            !relationship_type
+        ) {
+            return res.status(400).json({
+                error: "member_id, related_member_id and relationship_type are required"
+            });
+        }
+
+        if (Number(member_id) === Number(related_member_id)) {
+            return res.status(400).json({
+                error: "A member cannot have a relationship with themselves"
+            });
+        }
+
+        const result = await pool.query(
+            `
+            INSERT INTO relationships
+                (member_id, related_member_id, relationship_type)
+            VALUES
+                ($1, $2, $3)
+            RETURNING
+                id,
+                member_id,
+                related_member_id,
+                relationship_type,
+                created_at
+            `,
+            [
+                Number(member_id),
+                Number(related_member_id),
+                relationship_type
+            ]
+        );
+
+        res.status(201).json({
+            message: "Relationship added successfully",
+            relationship: result.rows[0]
+        });
+
+    } catch (error) {
+        console.error(error);
+
+        if (error.code === "23505") {
+            return res.status(409).json({
+                error: "This relationship already exists"
+            });
+        }
+
+        if (error.code === "23503") {
+            return res.status(400).json({
+                error: "One or both members do not exist"
+            });
+        }
+
+        res.status(500).json({
+            error: "Failed to add relationship"
+        });
+    }
+});
+
 app.get("/api/members/:id/family", async (req, res) => {
     try {
         const memberId = Number(req.params.id);
