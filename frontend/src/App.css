@@ -242,3 +242,105 @@ body {
   font-size: 13px;
   color: #172554;
 }
+
+.add-member-overlay {
+  position: fixed;
+  inset: 0;
+
+  background: rgba(0, 0, 0, 0.45);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  z-index: 10000;
+}
+
+.add-member-form {
+  width: 420px;
+  max-width: 90%;
+
+  background: white;
+  padding: 28px;
+
+  border-radius: 12px;
+
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+}
+
+.add-member-form h2 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #172554;
+}
+
+.add-member-form input,
+.add-member-form select {
+  width: 100%;
+  height: 42px;
+
+  margin-bottom: 12px;
+  padding: 10px 12px;
+
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.add-member-form input:focus,
+.add-member-form select:focus {
+  outline: none;
+  border-color: #2563eb;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+
+  margin-top: 10px;
+}
+
+.form-actions button {
+  padding: 9px 16px;
+
+  border: none;
+  border-radius: 7px;
+
+  cursor: pointer;
+}
+
+.form-actions button[type="button"] {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.form-actions button[type="submit"] {
+  background: #2563eb;
+  color: white;
+}
+
+.form-actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.add-member-button {
+  margin-left: 15px;
+  padding: 10px 16px;
+
+  border: none;
+  border-radius: 7px;
+
+  background: #2563eb;
+  color: white;
+
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.add-member-button:hover {
+  background: #1d4ed8;
+}

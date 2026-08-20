@@ -55,6 +55,66 @@ function App() {
   const [selectedMember, setSelectedMember] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
+  const [showAddMember, setShowAddMember] = useState(false);
+  const [newMember, setNewMember] = useState({
+  name: "",
+  phone: "",
+  email: "",
+  location: "",
+  gender: "",
+  date_of_birth: "",
+  photo_url: "",
+});
+  const [addingMember, setAddingMember] = useState(false);
+  const handleAddMember = async (e) => {
+  e.preventDefault();
+
+  if (!newMember.name.trim()) {
+    alert("Name is required");
+    return;
+  }
+
+  try {
+    setAddingMember(true);
+
+    const response = await axios.post(
+      `${API_URL}/api/members`,
+      newMember
+    );
+
+    const addedMember = response.data.member;
+
+    setMembers((prev) => [
+      ...prev,
+      addedMember,cod
+    ]);
+
+    setNewMember({
+      name: "",
+      phone: "",
+      email: "",
+      location: "",
+      gender: "",
+      date_of_birth: "",
+      photo_url: "",
+    });
+
+    setShowAddMember(false);
+
+    alert("Family member added successfully");
+  } catch (error) {
+    console.error("Failed to add member:", error);
+
+    alert(
+      error.response?.data?.error ||
+        "Failed to add family member"
+    );
+  } finally {
+    setAddingMember(false);
+  }
+};
+
+
 
   useEffect(() => {
     const loadFamilyData = async () => {
@@ -871,8 +931,119 @@ const searchResults = searchTerm.trim()
       </div>
     </div>
   )}
+    <button
+    className="add-member-button"
+    onClick={() => setShowAddMember(true)}
+  >
+    + Add Member
+  </button>
 </div>
 </header>
+
+{showAddMember && (
+  <div className="add-member-overlay">
+    <form
+      className="add-member-form"
+      onSubmit={handleAddMember}
+    >
+      <h2>Add Family Member</h2>
+
+      <input
+        type="text"
+        placeholder="Name *"
+        value={newMember.name}
+        onChange={(e) =>
+          setNewMember({
+            ...newMember,
+            name: e.target.value,
+          })
+        }
+        required
+      />
+
+      <input
+        type="text"
+        placeholder="Phone"
+        value={newMember.phone}
+        onChange={(e) =>
+          setNewMember({
+            ...newMember,
+            phone: e.target.value,
+          })
+        }
+      />
+
+      <input
+        type="email"
+        placeholder="Email"
+        value={newMember.email}
+        onChange={(e) =>
+          setNewMember({
+            ...newMember,
+            email: e.target.value,
+          })
+        }
+      />
+
+      <input
+        type="text"
+        placeholder="Location"
+        value={newMember.location}
+        onChange={(e) =>
+          setNewMember({
+            ...newMember,
+            location: e.target.value,
+          })
+        }
+      />
+
+      <select
+        value={newMember.gender}
+        onChange={(e) =>
+          setNewMember({
+            ...newMember,
+            gender: e.target.value,
+          })
+        }
+      >
+        <option value="">Select Gender</option>
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+        <option value="Other">Other</option>
+      </select>
+
+      <input
+        type="date"
+        value={newMember.date_of_birth}
+        onChange={(e) =>
+          setNewMember({
+            ...newMember,
+            date_of_birth: e.target.value,
+          })
+        }
+      />
+
+      <div className="form-actions">
+        <button
+          type="button"
+          onClick={() => setShowAddMember(false)}
+        >
+          Cancel
+        </button>
+
+        <button
+          type="submit"
+          disabled={addingMember}
+        >
+          {addingMember
+            ? "Adding..."
+            : "Add Member"}
+        </button>
+      </div>
+    </form>
+  </div>
+)}
+
 
       <main className="content">
 
