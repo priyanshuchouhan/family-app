@@ -88,11 +88,6 @@ function App() {
 
 const addedMember = response.data.member;
 
-setMembers((prev) => [
-  ...prev,
-  addedMember,
-]);
-
 if (
   relationship.type &&
   relationship.relatedMemberId
@@ -108,6 +103,17 @@ if (
     }
   );
 }
+    const [membersResponse, relationshipsResponse] =
+      await Promise.all([
+        axios.get(`${API_URL}/api/members`),
+        axios.get(`${API_URL}/api/relationships`),
+      ]);
+
+    setMembers(membersResponse.data.members);
+
+    setRelationships(
+      relationshipsResponse.data.relationships
+    );
 
   setNewMember({
     name: "",
