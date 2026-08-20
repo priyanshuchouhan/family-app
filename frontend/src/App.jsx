@@ -56,6 +56,10 @@ function App() {
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [showAddMember, setShowAddMember] = useState(false);
+  const [relationship, setRelationship] = useState({
+  type: "",
+  relatedMemberId: "",
+});
   const [newMember, setNewMember] = useState({
   name: "",
   phone: "",
@@ -82,24 +86,45 @@ function App() {
       newMember
     );
 
-    const addedMember = response.data.member;
+const addedMember = response.data.member;
 
-    setMembers((prev) => [
-      ...prev,
-      addedMember,cod
-    ]);
+setMembers((prev) => [
+  ...prev,
+  addedMember,
+]);
 
-    setNewMember({
-      name: "",
-      phone: "",
-      email: "",
-      location: "",
-      gender: "",
-      date_of_birth: "",
-      photo_url: "",
-    });
+if (
+  relationship.type &&
+  relationship.relatedMemberId
+) {
+  await axios.post(
+    `${API_URL}/api/relationships`,
+    {
+      member_id: addedMember.id,
+      related_member_id: Number(
+        relationship.relatedMemberId
+      ),
+      relationship_type: relationship.type,
+    }
+  );
+}
 
-    setShowAddMember(false);
+  setNewMember({
+    name: "",
+    phone: "",
+    email: "",
+    location: "",
+    gender: "",
+    date_of_birth: "",
+    photo_url: "",
+  });
+
+  setRelationship({
+    type: "",
+    relatedMemberId: "",
+  });
+
+  setShowAddMember(false);
 
     alert("Family member added successfully");
   } catch (error) {
@@ -1011,6 +1036,43 @@ const searchResults = searchTerm.trim()
         <option value="Female">Female</option>
         <option value="Other">Other</option>
       </select>
+
+      <select
+  value={relationship.type}
+  onChange={(e) =>
+    setRelationship({
+      ...relationship,
+      type: e.target.value,
+    })
+  }
+>
+  <option value="">Select Relationship</option>
+  <option value="father">Father</option>
+  <option value="mother">Mother</option>
+  <option value="spouse">Spouse</option>
+  <option value="child">Child</option>
+</select>
+
+<select
+  value={relationship.relatedMemberId}
+  onChange={(e) =>
+    setRelationship({
+      ...relationship,
+      relatedMemberId: e.target.value,
+    })
+  }
+>
+  <option value="">Select Related Member</option>
+
+  {members.map((member) => (
+    <option
+      key={member.id}
+      value={member.id}
+    >
+      {member.name} - {member.location}
+    </option>
+  ))}
+</select>
 
       <input
         type="date"
