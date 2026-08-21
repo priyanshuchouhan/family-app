@@ -31,13 +31,14 @@ app.get("/api/db-test", async (req, res) => {
             database: "connected",
             family_members: Number(result.rows[0].count)
         });
-    } catch (error) {
-        console.error(error);
+} catch (error) {
+    console.error("DATABASE ERROR:", error);
 
-        res.status(500).json({
-            database: "connection failed"
-        });
-    }
+    res.status(500).json({
+        database: "connection failed",
+        error: error.message
+    });
+}
 });
 
 app.get("/api/members", async (req, res) => {
