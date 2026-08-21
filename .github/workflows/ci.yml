@@ -80,13 +80,13 @@ jobs:
       - name: Build Docker image
         run: docker build -t family-app-backend:ci .
 
-      - name: Install Trivy
-        uses: aquasecurity/setup-trivy@v0.2.3
+
 
       - name: Trivy Docker Image Scan
-        run: |
-          trivy image \
-            --exit-code 1 \
-            --severity HIGH,CRITICAL \
-            --ignore-unfixed \
-            family-app-backend:ci
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: family-app-backend:ci
+          format: table
+          exit-code: 1
+          ignore-unfixed: true
+          severity: CRITICAL,HIGH
