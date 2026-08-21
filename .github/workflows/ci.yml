@@ -12,6 +12,10 @@ jobs:
   backend-ci:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: read
+      packages: write
+
     services:
       postgres:
         image: postgres:17
@@ -90,3 +94,16 @@ jobs:
           exit-code: 1
           ignore-unfixed: true
           severity: CRITICAL,HIGH
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push Docker image to GHCR
+        run: |
+          IMAGE=ghcr.io/${{ github.repository_owner }}/family-app-backend:${{ github.sha }}
+          docker tag family-app-backend:ci $IMAGE
+          docker push $IMAGE
