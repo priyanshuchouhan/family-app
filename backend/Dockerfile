@@ -4,8 +4,10 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm ci --omit=dev && \
-    npm cache clean --force
+RUN apk upgrade --no-cache && \
+    npm ci --omit=dev && \
+    npm cache clean --force && \
+    rm -rf /usr/local/lib/node_modules/npm
 
 COPY src ./src
 
